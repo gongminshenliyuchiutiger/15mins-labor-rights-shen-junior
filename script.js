@@ -1,5 +1,57 @@
 const modulesData = [
-    // 個體勞動 (Individual Labor) - 12 Modules
+    // 個體勞動 (Individual Labor) - 基礎概念先行
+    {
+        id: 25, type: 'individual', icon: 'fa-store', title: '我幫爸媽顧店算勞工嗎？', subtitle: '「勞工」的定義',
+        prep: '準備幾張不同職業的情境圖卡。',
+        goal: '釐清「勞動」與「勞雇關係」的定義（從屬性）。',
+        steps: [
+            { time: '3m', icon: 'fa-people-arrows', type: '情境引入', content: '「幫家裡顧麵攤」、「在便利商店打工」、「當YouTuber」，哪個算勞工？', q: '你覺得哪種工作才受勞基法保護？', a: '在便利商店打工有明確的老闆發薪水跟排班，屬於勞基法保障的勞工。' },
+            { time: '7m', icon: 'fa-chalkboard-user', type: '核心概念', content: '講解「勞雇關係」的兩大特徵：對價關係與指揮監督從屬性。', q: '幫家裡顧店為什麼通常不算？', a: '因為常常沒有固定的「薪水（對價）」且是基於親情互助，缺乏實質的「指揮監督從屬性」。' },
+            { time: '3m', icon: 'fa-bolt', type: '快問快答', content: '出3個職業（如外送員、發傳單工讀生、志工），讓學生判斷是不是勞工。', q: '志工算不算勞工？', a: '志工沒有拿對價的薪水，因此不受勞基法規範。' }
+        ],
+        quizzes: [
+            { q: '構成勞雇關係的兩大特徵是？', a: '有拿薪水（對價關係）與受指派做事（指揮監督從屬性）。' },
+            { q: '幫家裡顧店且沒領固定薪水，受勞基法保護嗎？', a: '不受保護，因為缺乏勞雇關係特徵。' },
+            { q: '發傳單的工讀生算不算勞工？', a: '算，有拿薪水並且受雇主指揮。' }
+        ],
+        flex: '**補充討論：YouTuber 算是勞工嗎？**。可以引導學生思考新興職業，通常YouTuber算是自僱者，沒有特定的老闆發薪水，因此不適用勞基法（除非是簽約在經紀公司底下的員工）。',
+        summary: '只要拿人薪水、受人管，就是受勞基法保護的勞工！'
+    },
+    {
+        id: 26, type: 'individual', icon: 'fa-child-reaching', title: '我幾歲才能開始打工？', subtitle: '童工與年齡限制',
+        prep: '法定代理人同意書範本。',
+        goal: '認識法定工作年齡與童工保護條款。',
+        steps: [
+            { time: '3m', icon: 'fa-shoe-prints', type: '情境引入', content: '國二的阿志想買球鞋，看到飲料店徵人，他可以去應徵嗎？', q: '國二大約14歲，老闆可以直接僱用他嗎？', a: '不行。未滿15歲原則上不能合法工作（除非特例如童星且有主管機關許可）。' },
+            { time: '7m', icon: 'fa-building-shield', type: '核心概念', content: '原則上滿15歲才能工作。15歲未滿16歲則稱為「童工」。', q: '老闆僱用童工有什麼特別規定？', a: '必須有法定代理人同意書、不能做危險工作、且嚴禁在晚上8點至早上6點之間工作。' },
+            { time: '3m', icon: 'fa-pen-clip', type: '實作演練', content: '發放法定代理人同意書範本，指出需要簽名處。', q: '如果自己偷偷簽名可以嗎？', a: '不行，除了可能構成偽造文書，失去父母同意的程序也讓自己失去了一層防護與保障。' }
+        ],
+        quizzes: [
+            { q: '原則上要滿幾歲才能合法開始打工？', a: '滿 15 歲。' },
+            { q: '法律上規定 15 歲以上未滿 16 歲的受僱者稱為？', a: '童工。' },
+            { q: '下列何者是童工不能做的事？', a: '不能做危險工作，且晚上8點到早上6點不能工作。' }
+        ],
+        flex: '**實務分享：謊報年齡的後果**。提醒學生若去打工謊報年齡，老闆如果沒查證就僱用，被勞工局查到老闆會面臨很重的罰鍰；而你自己一旦發生工安意外，因為是違法僱用，理賠將變得非常複雜且麻煩。',
+        summary: '滿 15 歲才能合法打工，16 歲前你是受特別保護的童工。'
+    },
+    {
+        id: 28, type: 'individual', icon: 'fa-file-invoice-dollar', title: '打工族也有特休嗎？', subtitle: '部分工時勞工權益',
+        prep: '兼職薪資計算題。',
+        goal: '破除「工讀生福利比較差」的迷思（同工同酬）。',
+        steps: [
+            { time: '3m', icon: 'fa-question', type: '情境引入', content: '正職員工有特休、國定假日雙倍薪，那我是時薪PT有嗎？', q: '你覺得PT（工讀生）是次等員工嗎？', a: '絕對不是！在勞基法的保護下，PT（部分工時勞工）享有與正職相同的權利種類，只是額度上有所不同。' },
+            { time: '7m', icon: 'fa-chart-pie', type: '核心概念', content: '講解PT權益按比例計算，以及國定假日出勤也要雙倍薪。', q: '如果我在雙十節去手搖店打工，時薪要怎麼算？', a: '依法國定假日出勤，雇主必須給付雙倍的時薪。這是你的強大護身符。' },
+            { time: '3m', icon: 'fa-xmark', type: '迷思破解', content: '是非題：工讀生遲到1分鐘扣1小時薪水。', q: '為什麼不能亂扣錢？', a: '這違反了工資全額給付原則，雇主不得因為幾分鐘的遲到預先扣除不成比例的龐大工資。' }
+        ],
+        quizzes: [
+            { q: '工讀生（PT）有享受到特休假的權利嗎？', a: '有，會依出勤時數與正職的比例換算特休時數。' },
+            { q: '如果國定假日被店長排班上班，時薪應該怎麼算？', a: '應該發給雙倍時薪。' },
+            { q: '「因為你是工讀生，所以沒有資遣費」這句話對嗎？', a: '錯，工讀生依照年資同樣享有資遣費保障。' }
+        ],
+        flex: '**職場應用：主動詢問的藝術**。鼓勵學生在面試工讀時，可以禮貌但堅定地確認：「請問排班遇到國定假日時，薪水是如何計算呢？」這不但能保護自己，也會讓雇主覺得你是有備而來的成熟工作者。',
+        summary: '工讀生不是二等勞工，勞基法保障不打折。'
+    },
+    // 個體勞動 (Individual Labor) - 核心模組
     {
         id: 1, type: 'individual', icon: 'fa-id-card', title: '我的第一份工作契約', subtitle: '勞動契約基礎知識',
         prep: '準備幾份常見的工讀契約範本供學生傳閱。',
@@ -326,6 +378,23 @@ const modulesData = [
         summary: '罷工不是自私，是讓失衡巨輪運轉。'
     },
     {
+        id: 27, type: 'collective', icon: 'fa-scale-balanced', title: '什麼事都可以罷工嗎？', subtitle: '罷工的界線與限制',
+        prep: '白板分為「權利事項」與「調整事項」。',
+        goal: '辨別權利與調整事項，並了解罷工的職業限制。',
+        steps: [
+            { time: '3m', icon: 'fa-comment-dots', type: '情境引入', content: '老闆欠薪水 vs. 員工希望加薪。這處理方式一樣嗎？', q: '欠薪水可以直接罷工抗議嗎？', a: '不行。欠工資是違法行為（權利事項），應直接找勞工局檢舉；罷工多用於爭取本來沒有的福利（調整事項）。' },
+            { time: '7m', icon: 'fa-layer-group', type: '核心概念', content: '講解權利事項（檢舉/訴訟）與調整事項（協商/罷工），補充職業罷工限制。', q: '為什麼不能為了老闆欠錢而發動罷工？', a: '因為欠錢是老闆明顯違法，國家公權力（勞動檢查/法院）可以直接處理並開罰，不需要且不應浪費龐大的罷工成本。' },
+            { time: '3m', icon: 'fa-folder-tree', type: '實戰分類', content: '沒給加班費 vs 想要員工旅遊。請學生分類處理。', q: '「想要分紅」屬於哪一種事項？', a: '屬於爭取更好的條件（調整事項），可以交由工會去協商甚至發動爭議行為。' }
+        ],
+        quizzes: [
+            { q: '老闆不給法定加班費，屬於哪種事項？', a: '權利事項，應去找勞工局申訴檢舉。' },
+            { q: '員工希望明年增加兩天員工旅遊，屬於哪種事項？', a: '調整事項，應由工會去協商爭取。' },
+            { q: '軍警或教師等特定職業的罷工權會受到什麼限制？', a: '依法會被嚴格限制或完全禁止罷工。' }
+        ],
+        flex: '**觀念統整：保護自己的兩把劍**。權利事項就像是防禦的盾（找政府幫忙），調整事項是攻擊的劍（靠團結爭取）。兩者分辨清楚，遇到問題時就不會用錯方法，節省時間與力氣。',
+        summary: '違法直接檢舉，想爭取更好福利就靠工會團結！'
+    },
+    {
         id: 20, type: 'collective', icon: 'fa-eye-slash', title: '別讓標籤抹黑罷工', subtitle: '標籤辨識媒體識讀',
         prep: '負面留言。',
         goal: '媒體識讀。',
@@ -392,28 +461,14 @@ const modulesData = [
         ],
         flex: '**實境連結：尋找身邊的勞工局與工會**。教師可拉出 Google Map，讓學生搜尋戶籍地的勞工局與在地總工會位置。讓學生具體感覺到這些保護他們的機構並非遙遠的法條，而是隨時可求助的真實後盾。',
         summary: '團結一致就是力量，權益保障一起來。'
-    },
-    {
-        id: 24, type: 'collective', icon: 'fa-id-badge', title: '我是未來的公民', subtitle: '勞動尊嚴與公民素養',
-        prep: '公民素養投影卡。',
-        goal: '提升勞動尊嚴感與公民素養。',
-        steps: [
-            { time: '4m', icon: 'fa-id-badge', type: '自我認同', content: '討論勞動不僅是為了賺錢。', q: '你覺得一個勞工在社會上的角色是什麼？只有薪水重要嗎？', a: '勞工是維持社會運轉不可或缺的齒輪。薪水固然重要，但勞動的尊嚴、自我實現以及為社會帶來的價值同等重要。' },
-            { time: '7m', icon: 'fa-solid fa-heart-pulse', type: '勞動尊嚴', content: '尊重彼此的工作價值與勞動條件。', q: '如果你是客人，你如何展現對勞工的尊重？', a: '理解各行業的辛勞，保持禮貌，不當奧客，不把「花錢就是大爺」的態度帶入消費場合，尊重每一次的服務。' },
-            { time: '4m', icon: 'fa-solid fa-graduation-cap', type: '畢業宣誓', content: '宣布完成所有課程模組。', q: '你覺得這 24 課對你未來的打工生活有什麼實際幫助？', a: '（總結）了解法律底線，懂得辨識危險與陷阱，明白遇糾紛時如何蒐證求援，成為一名懂得保護自己與他人的現代公民。' }
-        ],
-        quizzes: [
-            { q: '提升勞動素養的主要目的是？', a: '保護自己、尊重他人、維護公平健康的勞動市場環境。' },
-            { q: '當你看見不公平的勞資情境時，最好的公民行動是？', a: '了解事實、適時發聲或支持受害者、並透過官方法律管道處理。' },
-            { q: '勞動尊嚴的基礎在於？', a: '相互尊重與遵守法律底線，不分職業高低。' }
-        ],
-        flex: '**未來展望：AI時代與新勞動權益**。可帶領學生展望未來：當 AI 與自動化取代傳統工作、外送員被演算法控制，未來的勞動權益將如何轉變？期許學生帶著這些權利意識，去面對未來多變的新型態勞資關係。',
-        summary: '掌握權益就是保護未來，我是勞動小公民。'
     }
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
-    const grid = document.getElementById('grid');
+    const gridIndividual = document.getElementById('grid-individual');
+    const gridCollective = document.getElementById('grid-collective');
+    const individualTitle = document.getElementById('individual-section-title');
+    const collectiveTitle = document.getElementById('collective-section-title');
     const modal = document.getElementById('modal');
     const modalBody = document.getElementById('modalBody');
     const searchInput = document.getElementById('searchInput');
@@ -421,25 +476,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentFilter = 'all';
 
-    function renderTiles(data) {
-        grid.innerHTML = '';
+    function highlightText(text, query) {
+        if (!query) return text;
+        const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(${escaped})`, 'gi');
+        return text.replace(regex, '<mark class="search-highlight">$1</mark>');
+    }
+
+    function renderTiles(data, query = '') {
+        if (!gridIndividual || !gridCollective) return;
+
+        gridIndividual.innerHTML = '';
+        gridCollective.innerHTML = '';
+        
+        let hasIndividual = false;
+        let hasCollective = false;
+
         data.forEach((m, idx) => {
             const card = document.createElement('div');
             card.className = `card ${m.type}`;
-            card.style.animationDelay = `${idx * 0.04}s`;
+            card.style.animationDelay = `${(idx % 10) * 0.04}s`;
+            const titleHL = highlightText(m.title, query);
+            const subtitleHL = highlightText(m.subtitle, query);
             card.innerHTML = `
                 <div class="card-tag">${m.type === 'individual' ? '個體勞動' : '集體勞動'}</div>
                 <div class="card-icon"><i class="fa-solid ${m.icon}"></i></div>
-                <div class="card-title">${m.title}</div>
-                <div class="card-desc">${m.subtitle}</div>
+                <div class="card-title">${titleHL}</div>
+                <div class="card-desc">${subtitleHL}</div>
                 <div class="card-footer">
                     <span class="time-badge">15 分鐘</span>
                     <span class="open-link"> 打開百寶箱 <i class="fa-solid fa-arrow-right-long"></i></span>
                 </div>
             `;
             card.onclick = () => openModalBox(m);
-            grid.appendChild(card);
+            
+            if (m.type === 'individual') {
+                gridIndividual.appendChild(card);
+                hasIndividual = true;
+            } else {
+                gridCollective.appendChild(card);
+                hasCollective = true;
+            }
         });
+
+        // 隱藏沒有項目的區塊標題
+        if (individualTitle) individualTitle.style.display = hasIndividual ? 'flex' : 'none';
+        if (collectiveTitle) collectiveTitle.style.display = hasCollective ? 'flex' : 'none';
     }
 
     function openModalBox(m) {
@@ -545,13 +627,16 @@ document.addEventListener('DOMContentLoaded', () => {
     searchInput.oninput = applySearchAndFilter;
 
     function applySearchAndFilter() {
-        const query = searchInput.value.toLowerCase();
+        const query = searchInput.value.trim().toLowerCase();
         const filtered = modulesData.filter(m => {
             const typeMatch = currentFilter === 'all' || m.type === currentFilter;
-            const searchMatch = m.title.toLowerCase().includes(query) || (m.goal && m.goal.toLowerCase().includes(query)) || m.subtitle.toLowerCase().includes(query);
+            const searchMatch = !query ||
+                m.title.toLowerCase().includes(query) ||
+                (m.goal && m.goal.toLowerCase().includes(query)) ||
+                m.subtitle.toLowerCase().includes(query);
             return typeMatch && searchMatch;
         });
-        renderTiles(filtered);
+        renderTiles(filtered, query);
     }
 
     window.copyPlanSnippet = (title) => {
@@ -1624,6 +1709,146 @@ const quizGamesData = {
       "a": 1,
       "exp": "勞動法是用來接住每一位辛勤耕耘者的安全網。它確保我們不因追求生存而被剝削尊嚴，是進步公民社會的基石。"
     }
+  ],
+  "25": [
+    {
+      "q": "幫家裡顧店且沒領固定薪水，算勞基法上的勞工嗎？",
+      "o": [
+        "算，有付出勞力就得保護",
+        "不算，因為缺乏對價與指揮監督從屬關係",
+        "看家人有沒有生氣",
+        "只要有穿制服就算"
+      ],
+      "a": 1,
+      "exp": "在勞基法的定義下，勞力付出必須換取薪資（對價），以及聽從資方指令（從屬性），才算成立勞雇關係。"
+    },
+    {
+      "q": "構成勞雇關係的兩大核心特徵是？",
+      "o": [
+        "打卡下班與吃便當",
+        "有拿薪水與聽老闆的話做事",
+        "有穿制服與拿名片",
+        "有沒有簽紙本合約"
+      ],
+      "a": 1,
+      "exp": "「對價關係」（給付薪水）與「指揮監督從屬性」（接受雇主命令），此二者是法庭上認定勞工的標準。"
+    },
+    {
+      "q": "志工沒有領取薪資，受勞基法規範嗎？",
+      "o": [
+        "受規範，因為他們很偉大",
+        "不受規範，這屬於無償奉獻",
+        "看他們有沒有簽名",
+        "只要有便當就算"
+      ],
+      "a": 1,
+      "exp": "志工為無償勞務提供者，並非受僱支薪，所以不適用於維護勞工基本勞動條件的勞動基準法。"
+    }
+  ],
+  "26": [
+    {
+      "q": "原則上，必須滿幾歲才能合法開始打工？",
+      "o": [
+        "14 歲",
+        "15 歲",
+        "16 歲",
+        "18 歲"
+      ],
+      "a": 1,
+      "exp": "依照法律，需年滿 15 歲才能提供勞務工作。特例（如童星）需經過中央主管機關專案與重重審查。"
+    },
+    {
+      "q": "15歲以上未滿16歲的受僱者，在法律上被稱為？",
+      "o": [
+        "青年勞工",
+        "童工",
+        "見習生",
+        "小幫手"
+      ],
+      "a": 1,
+      "exp": "15至16歲為「童工」，受勞動法特別強度保護，目的是確保青少年的受學期間與身心正常發展。"
+    },
+    {
+      "q": "關於童工的特別保護條款，下列何者正確？",
+      "o": [
+        "可以上大夜班",
+        "需要法定代理人同意書",
+        "從事任何危險工作都行",
+        "只要考上高中就可以"
+      ],
+      "a": 1,
+      "exp": "僱用童工要有身分證明與法定代理人同意書，且不可安排在晚上八時至凌晨六時夜間工作或從事危險性作業。"
+    }
+  ],
+  "28": [
+    {
+      "q": "工讀生（PT、部分工時勞工）有特休假的權益嗎？",
+      "o": [
+        "沒有，這是正職的福利",
+        "有，會依出勤時數與正職比例計算",
+        "只能用扣薪請事假",
+        "看店長的心情"
+      ],
+      "a": 1,
+      "exp": "部分工時勞工（工讀生）一樣擁有特休權利，天數或時數將依照其服勤時數等身分比例發給。"
+    },
+    {
+      "q": "如果國定假日店長排班要你去上班，你的時薪該如何計算？",
+      "o": [
+        "照常發給時薪",
+        "應該發給雙倍時薪",
+        "給一杯免費飲料",
+        "只給 1.34 倍"
+      ],
+      "a": 1,
+      "exp": "PT 勞工國定假日出勤，雇主依法必須發給雙倍工資。同工同酬，勞基法的保護對所有人都相同。"
+    },
+    {
+      "q": "工讀生遲到1分鐘，老闆說要扣1小時的薪水，合法嗎？",
+      "o": [
+        "合法，因為要懲罰",
+        "不合法，違反工資全額給付原則",
+        "看老闆規定",
+        "只要大家同意就可以"
+      ],
+      "a": 1,
+      "exp": "遲到只能按「比例」不給予該段時間的工資，不能過度放大懲罰預扣工資。這屬於惡意剝皮的違法行徑。"
+    }
+  ],
+  "27": [
+    {
+      "q": "老闆欠發薪水，你應該怎麼處理？",
+      "o": [
+        "馬上發動罷工抗議",
+        "找黑道討債",
+        "向勞工局檢舉申訴（權利事項）",
+        "自認倒楣"
+      ],
+      "a": 2,
+      "exp": "「欠薪」是雇主違法，屬於權利受到侵害的「權利事項」，可直接透過公權力（勞動檢查）或法院討回公道。"
+    },
+    {
+      "q": "員工希望明年增加兩天員工旅遊假期，這屬於哪種事項？",
+      "o": [
+        "權利事項",
+        "調整事項（爭取更好福利）",
+        "違法事項",
+        "刑事事項"
+      ],
+      "a": 1,
+      "exp": "這種維持與調整既有條件、爭取優於勞基法的談判，被視為「調整事項」，可藉由工會發動協商甚至爭議行為。"
+    },
+    {
+      "q": "特定職業（例如軍警或國防人員）的罷工權為何受到嚴格限制？",
+      "o": [
+        "因為他們薪水很高",
+        "因為涉及國家安全與重大公共安全",
+        "因為他們體力太好",
+        "因為人數太多"
+      ],
+      "a": 1,
+      "exp": "國家機器或影響重大衛生的職能（如現役軍人），其停工將會對社會生存產生立即危害，所以憲法與法律在權衡後給予特殊限制。"
+    }
   ]
 };
 
@@ -1718,17 +1943,24 @@ window.submitAnswer = function(optIdx) {
     clearInterval(gameTimer);
     const qData = currentGameState.questions[currentGameState.currentIndex];
     const btns = document.querySelectorAll('.game-opt-btn');
+    const gameMain = document.getElementById('game-main');
     
     if (optIdx === qData.a) {
         btns[optIdx].classList.add('correct');
         currentGameState.combo++;
         const points = Math.floor(currentGameState.timeLeft * 10) + (currentGameState.combo * 50);
         currentGameState.score += points;
+        // 明顯的正確回饋
+        gameMain.classList.add('feedback-correct');
+        setTimeout(() => gameMain.classList.remove('feedback-correct'), 700);
     } else {
         btns[optIdx].classList.add('wrong');
         btns[qData.a].classList.add('correct');
         currentGameState.lives--;
         currentGameState.combo = 0;
+        // 明顯的错誤回饋
+        gameMain.classList.add('feedback-wrong');
+        setTimeout(() => gameMain.classList.remove('feedback-wrong'), 700);
     }
     
     updateGameUI();
@@ -1744,9 +1976,13 @@ window.submitAnswer = function(optIdx) {
 function handleTimeout() {
     const qData = currentGameState.questions[currentGameState.currentIndex];
     const btns = document.querySelectorAll('.game-opt-btn');
+    const gameMain = document.getElementById('game-main');
     if(btns[qData.a]) btns[qData.a].classList.add('correct');
     currentGameState.lives--;
     currentGameState.combo = 0;
+    // 明顯的超時错誤回饋
+    gameMain.classList.add('feedback-wrong');
+    setTimeout(() => gameMain.classList.remove('feedback-wrong'), 700);
     updateGameUI();
     showExplanation("時間到！很可惜，一定要在時間內做出決定喔。" + qData.exp);
 }

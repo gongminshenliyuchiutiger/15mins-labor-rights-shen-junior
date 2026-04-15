@@ -142,6 +142,20 @@ main {
     padding: 0 20px;
 }
 
+.section-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin: 0 0 25px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#collective-section-title {
+    margin-top: 60px;
+}
+
 .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -997,4 +1011,46 @@ footer {
     .game-options-grid { grid-template-columns: 1fr; }
     .game-main { padding: 20px; }
     .stat-item { font-size: 1.1rem; }
+}
+
+/* ==========================================
+   搜尋高亮樣式
+   ========================================== */
+.search-highlight {
+    background: #ffeb3b;
+    color: #1e272e;
+    border-radius: 4px;
+    padding: 0 3px;
+    font-weight: 900;
+    box-shadow: 0 2px 6px rgba(255, 235, 59, 0.5);
+}
+
+/* ==========================================
+   益智挑戰賽 - 容器層級明顯回饋動畫
+   ========================================== */
+.game-main.feedback-correct {
+    animation: flashGreen 0.7s ease forwards;
+    box-shadow: 0 0 60px rgba(46, 213, 113, 0.8), 0 20px 50px rgba(0,0,0,0.3);
+}
+
+.game-main.feedback-wrong {
+    animation: flashRedShake 0.7s ease forwards;
+    box-shadow: 0 0 60px rgba(255, 71, 87, 0.8), 0 20px 50px rgba(0,0,0,0.3);
+}
+
+@keyframes flashGreen {
+    0%   { border-color: rgba(46, 213, 113, 0); background: rgba(255,255,255,0.05); }
+    20%  { border-color: rgba(46, 213, 113, 1);  background: rgba(46, 213, 113, 0.20); transform: scale(1.015); }
+    60%  { border-color: rgba(46, 213, 113, 0.6); background: rgba(46, 213, 113, 0.10); transform: scale(1.007); }
+    100% { border-color: rgba(255,255,255,0.1);   background: rgba(255,255,255,0.05); transform: scale(1); }
+}
+
+@keyframes flashRedShake {
+    0%    { border-color: rgba(255, 71, 87, 0); background: rgba(255,255,255,0.05); transform: translateX(0); }
+    10%   { border-color: rgba(255, 71, 87, 1); background: rgba(255, 71, 87, 0.22); transform: translateX(-12px); }
+    25%   { transform: translateX(12px);  background: rgba(255, 71, 87, 0.18); }
+    40%   { transform: translateX(-9px);  background: rgba(255, 71, 87, 0.14); }
+    55%   { transform: translateX(6px);   background: rgba(255, 71, 87, 0.10); }
+    70%   { transform: translateX(-4px);  background: rgba(255, 71, 87, 0.06); }
+    100%  { border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); transform: translateX(0); }
 }
