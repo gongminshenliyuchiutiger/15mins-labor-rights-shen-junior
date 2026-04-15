@@ -24,12 +24,15 @@
         <div class="search-box">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" id="searchInput" placeholder="搜尋課程標題、關鍵字或教學目標...">
+            <button id="searchClearBtn" class="search-clear-btn" title="清除搜尋" style="display:none;"><i class="fa-solid fa-xmark"></i></button>
         </div>
+        <span id="searchCount" class="search-count"></span>
         <div class="filter-group">
             <button class="filter-btn active" data-filter="all">全部模組</button>
             <button class="filter-btn" data-filter="individual">個體勞動</button>
             <button class="filter-btn" data-filter="collective">集體勞動</button>
         </div>
+        <button id="mixedQuizBtn" class="mixed-quiz-btn" title="從全部28個模組各刷1題，組動大考"><i class="fa-solid fa-shuffle"></i> 全科大考</button>
     </div>
 
     <main>
@@ -59,8 +62,25 @@
 
     <!-- 互動吉祥物 -->
     <div id="mascot" title="拖曳我！">
-        <img src="image/LiyuChillGuy.svg" alt="Mascot">
+        <img src="image/LiyuChillGuy.svg" alt="Mascot" loading="lazy">
     </div>
+
+    <!-- 鍵盤快捷鍵浮動提示 -->
+    <div id="keyboard-hint-btn" class="keyboard-hint-btn" title="鍵盤快捷鍵">
+        <i class="fa-solid fa-keyboard"></i>
+        <div class="keyboard-hint-panel" id="keyboard-hint-panel">
+            <div class="kb-title"><i class="fa-solid fa-keyboard"></i> 鍵盤快捷鍵</div>
+            <div class="kb-item"><kbd>/</kbd> <span>聚焦搜尋框</span></div>
+            <div class="kb-item"><kbd>Esc</kbd> <span>關閉視窗 / 退出簡報</span></div>
+            <div class="kb-item"><kbd>←</kbd><kbd>→</kbd> <span>切換簡報投影片</span></div>
+            <div class="kb-item"><kbd>Space</kbd> <span>簡報顯示解答</span></div>
+            <div class="kb-item"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd> <span>益智挑戰賽選項</span></div>
+            <div class="kb-item"><kbd>[ ]</kbd> <span>模態框上/下一個模組</span></div>
+        </div>
+    </div>
+
+    <!-- Toast 通知容器 -->
+    <div id="toast-container" class="toast-container"></div>
 
     <!-- 簡報模式覆蓋層 -->
     <div id="presentation-overlay" class="presentation-overlay hidden">

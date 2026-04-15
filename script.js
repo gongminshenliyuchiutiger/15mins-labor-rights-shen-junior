@@ -492,6 +492,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterBtns = document.querySelectorAll('.filter-btn');
 
     let currentFilter = 'all';
+    let currentFilteredList = [...modulesData];
+    let currentOpenModuleId = null;
+
+    // 搜尋清除鍵
+    const searchClearBtn = document.getElementById('searchClearBtn');
+    const searchCount    = document.getElementById('searchCount');
+    if (searchClearBtn) {
+        searchClearBtn.onclick = () => {
+            searchInput.value = '';
+            searchClearBtn.style.display = 'none';
+            if (searchCount) { searchCount.textContent = ''; searchCount.className = 'search-count'; }
+            applySearchAndFilter();
+            searchInput.focus();
+        };
+    }
+
+    // / 鍵聚焦搜尋框
+    document.addEventListener('keydown', (e) => {
+        if (e.key === '/' && document.activeElement !== searchInput && document.getElementById('modal').style.display !== 'block') {
+            e.preventDefault();
+            searchInput.focus();
+        }
+    });
+
+    // 鍵盤提示浮動按鈕點擊切換
+    const kbBtn = document.getElementById('keyboard-hint-btn');
+    if (kbBtn) kbBtn.addEventListener('click', () => kbBtn.classList.toggle('active'));
+
+    // 全科大考按鈕
+    const mixedQuizBtn = document.getElementById('mixedQuizBtn');
+    if (mixedQuizBtn) mixedQuizBtn.onclick = startMixedQuiz;
 
     function highlightText(text, query) {
         if (!query) return text;
@@ -500,8 +531,21 @@ document.addEventListener('DOMContentLoaded', () => {
         return text.replace(regex, '<mark class="search-highlight">$1</mark>');
     }
 
+    // 難度分級 Map
+    const difficultyMap = {
+        basic:    [25, 26, 28, 1],
+        advanced: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 27],
+        challenge:[16, 17, 18, 19, 20, 21, 22, 23, 24]
+    };
+    function getDifficulty(id) {
+        if (difficultyMap.basic.includes(id))    return { label: '🟢 基礎', cls: 'basic' };
+        if (difficultyMap.advanced.includes(id)) return { label: '🟡 進階', cls: 'advanced' };
+        return { label: '🔴 挑戰', cls: 'challenge' };
+    }
+
     function renderTiles(data, query = '') {
         if (!gridIndividual || !gridCollective) return;
+        currentFilteredList = data;
 
         gridIndividual.innerHTML = '';
         gridCollective.innerHTML = '';
@@ -515,8 +559,12 @@ document.addEventListener('DOMContentLoaded', () => {
             card.style.animationDelay = `${(idx % 10) * 0.04}s`;
             const titleHL = highlightText(m.title, query);
             const subtitleHL = highlightText(m.subtitle, query);
+            const diff = getDifficulty(m.id);
             card.innerHTML = `
-                <div class="card-tag">${m.type === 'individual' ? '個體勞動' : '集體勞動'}</div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                    <div class="card-tag">${m.type === 'individual' ? '個體勞動' : '集體勞動'}</div>
+                    <span class="difficulty-badge ${diff.cls}">${diff.label}</span>
+                </div>
                 <div class="card-icon"><i class="fa-solid ${m.icon}"></i></div>
                 <div class="card-title">${titleHL}</div>
                 <div class="card-desc">${subtitleHL}</div>
@@ -536,12 +584,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // 隱藏沒有項目的區塊標題
         if (individualTitle) individualTitle.style.display = hasIndividual ? 'flex' : 'none';
         if (collectiveTitle) collectiveTitle.style.display = hasCollective ? 'flex' : 'none';
     }
 
     function openModalBox(m) {
+        currentOpenModuleId = m.id;
+
         const stepsHTML = m.steps.map(s => {
             const quest = s.q || '（本步驟以知識引導為主，請老師總結重點）。';
             const ansHTML = s.a ? `<div class="key-answer" style="margin-top: 8px; color: var(--text-muted); font-size: 0.95rem; border-left: 3px solid var(--accent); padding-left: 12px; line-height: 1.5; background: rgba(0,0,0,0.03); padding-top: 8px; padding-bottom: 8px; border-radius: 0 8px 8px 0;"><strong style="color: var(--accent);"><i class="fa-solid fa-lightbulb"></i> 教學引導參考：</strong><br>${s.a}</div>` : '';
@@ -570,6 +619,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
         `).join('');
+
+        // 推薦組合包（相同類型、相近ID，排除自身）
+        const related = modulesData
+            .filter(x => x.id !== m.id && x.type === m.type)
+            .sort((a, b) => Math.abs(a.id - m.id) - Math.abs(b.id - m.id))
+            .slice(0, 3);
+        const relatedHTML = related.length > 0 ? `
+            <div class="related-section">
+                <h4><i class="fa-solid fa-link" style="color:var(--accent);"></i> 教師也常搭配</h4>
+                <div class="related-cards">
+                    ${related.map(r => `<button class="related-card-btn ${r.type}" onclick="window._openModuleById(${r.id})"><i class="fa-solid ${r.icon}"></i> ${r.title}</button>`).join('')}
+                </div>
+            </div>
+        ` : '';
+
+        // 上/下一個模組導航
+        const curIdx = currentFilteredList.findIndex(x => x.id === m.id);
+        const prevM = curIdx > 0 ? currentFilteredList[curIdx - 1] : null;
+        const nextM = curIdx < currentFilteredList.length - 1 ? currentFilteredList[curIdx + 1] : null;
+        const navHTML = `
+            <div class="modal-nav-bar">
+                ${prevM ? `<button class="modal-nav-btn prev" onclick="window._openModuleById(${prevM.id})"><i class="fa-solid fa-chevron-left"></i><span class="nav-module-name">${prevM.title}</span></button>` : '<div></div>'}
+                <span class="modal-nav-center">${curIdx + 1} / ${currentFilteredList.length}</span>
+                ${nextM ? `<button class="modal-nav-btn next" onclick="window._openModuleById(${nextM.id})"><span class="nav-module-name">${nextM.title}</span><i class="fa-solid fa-chevron-right"></i></button>` : '<div></div>'}
+            </div>
+        `;
+
+        // 教師備忘錄（localStorage 儲存）
+        const savedNote = localStorage.getItem('teacherNote_' + m.id) || '';
+        const notesHTML = `
+            <div class="teacher-notes-box">
+                <label><i class="fa-solid fa-pen-to-square"></i> 教師備忘錄（自動儲存）</label>
+                <textarea class="teacher-notes-textarea" id="teacherNote_${m.id}" placeholder="記下這堂課的心得、講到嗨的素材、學生反應...">${savedNote}</textarea>
+                <div class="teacher-notes-saved" id="notesSaved_${m.id}">✓ 已儲存</div>
+            </div>
+        `;
 
         modalBody.innerHTML = `
             <div style="margin-bottom: 30px;">
@@ -619,10 +704,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h4><i class="fa-solid fa-wand-magic-sparkles"></i> 教學小撇步 (Flexibility)</h4>
                 <p style="margin: 0; color: var(--text-muted); line-height: 1.6;">${(m.flex || '老師可依課堂氣氛彈性調整。').replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--primary);">$1</strong>')}</p>
             </div>
+
+            ${relatedHTML}
+            ${notesHTML}
+            ${navHTML}
         `;
         modal.style.display = 'block';
         document.body.style.overflow = 'hidden';
+
+        // 教師備忘錄自動儲存（防抖 800ms）
+        const ta = document.getElementById('teacherNote_' + m.id);
+        const savedEl = document.getElementById('notesSaved_' + m.id);
+        if (ta && savedEl) {
+            let saveTimer = null;
+            ta.addEventListener('input', () => {
+                savedEl.style.display = 'none';
+                clearTimeout(saveTimer);
+                saveTimer = setTimeout(() => {
+                    localStorage.setItem('teacherNote_' + m.id, ta.value);
+                    savedEl.style.display = 'block';
+                    setTimeout(() => { savedEl.style.display = 'none'; }, 2000);
+                }, 800);
+            });
+        }
     }
+
+    // 透過 ID 開啟模態（供推薦卡與導航按鈕使用）
+    window._openModuleById = (id) => {
+        const m = modulesData.find(x => x.id === id);
+        if (m) { openModalBox(m); document.querySelector('.modal-content').scrollTop = 0; }
+    };
 
     window.closeModalBox = function() {
         modal.style.display = 'none';
@@ -631,6 +742,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelector('.close-modal').onclick = closeModalBox;
     window.onclick = (e) => { if(e.target === modal) closeModalBox(); };
+
+    // [ ] 鍵切换模态框上/下一個模組
+    document.addEventListener('keydown', (e) => {
+        if (modal.style.display !== 'block') return;
+        if (e.target.tagName === 'TEXTAREA') return; // 輸入字時不觸發
+        const curIdx = currentFilteredList.findIndex(x => x.id === currentOpenModuleId);
+        if (e.key === '[' && curIdx > 0) {
+            openModalBox(currentFilteredList[curIdx - 1]);
+            document.querySelector('.modal-content').scrollTop = 0;
+        } else if (e.key === ']' && curIdx < currentFilteredList.length - 1) {
+            openModalBox(currentFilteredList[curIdx + 1]);
+            document.querySelector('.modal-content').scrollTop = 0;
+        }
+    });
 
     filterBtns.forEach(b => {
         b.onclick = () => {
@@ -653,6 +778,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 m.subtitle.toLowerCase().includes(query);
             return typeMatch && searchMatch;
         });
+
+        // 更新搜尋清除鍵與計數器
+        if (searchClearBtn) searchClearBtn.style.display = query ? 'flex' : 'none';
+        if (searchCount) {
+            const isFiltered = query || currentFilter !== 'all';
+            if (isFiltered) {
+                searchCount.textContent = `顯示 ${filtered.length} / ${modulesData.length} 個模組`;
+                searchCount.className = 'search-count ' + (filtered.length > 0 ? 'has-results' : 'no-results');
+            } else {
+                searchCount.textContent = '';
+                searchCount.className = 'search-count';
+            }
+        }
+
         renderTiles(filtered, query);
     }
 
@@ -661,7 +800,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!m) return;
         const quizText = (m.quizzes || []).map((q, i) => `檢核 Q${i+1}：${q.q}\n解答 A${i+1}：${q.a}`).join('\n');
         const text = `【${m.title}】\n目標：${m.goal}\n準備：${m.prep}\n流程：\n${m.steps.map(s => `- [${s.time}] ${s.content} (提問：${s.q})`).join('\n')}\n--- 核心觀念檢核 ---\n${quizText}\n--- 總結 ---\n${m.summary}`;
-        navigator.clipboard.writeText(text).then(() => alert('專業教案大綱已複製，包含 3 組互動問答，老師加油！'));
+        navigator.clipboard.writeText(text).then(() => showToast('📝 專業教案已複製！包含 3 組互動問答', 'success'));
     };
 
     // Mascot Drag Logic
@@ -710,6 +849,66 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderTiles(modulesData);
 });
+
+// ==========================================
+// Toast 通知系統
+// ==========================================
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    const icons = { success: '✅', error: '⚠️', info: 'ℹ️' };
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `${icons[type] || ''} ${message}`;
+    container.appendChild(toast);
+    setTimeout(() => {
+        toast.classList.add('fade-out');
+        setTimeout(() => toast.remove(), 380);
+    }, 2500);
+}
+
+// ==========================================
+// 全科大考模式
+// ==========================================
+function startMixedQuiz() {
+    const keys = Object.keys(quizGamesData);
+    const mixed = [];
+    keys.forEach(key => {
+        const arr = quizGamesData[key];
+        const mod = modulesData.find(m => m.id === +key);
+        if (arr && arr.length > 0) {
+            const q = {...arr[Math.floor(Math.random() * arr.length)]};
+            q._moduleId = +key;
+            q._moduleName = mod ? mod.title : `模組 ${key}`;
+            mixed.push(q);
+        }
+    });
+    // Fisher-Yates 洗牌
+    for (let i = mixed.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [mixed[i], mixed[j]] = [mixed[j], mixed[i]];
+    }
+    window.closeModalBox && window.closeModalBox();
+    const gameOverlay = document.getElementById('game-overlay');
+    const resultBox   = document.getElementById('game-result');
+    currentGameState = {
+        moduleId: 0,
+        questions: mixed,
+        currentIndex: 0,
+        score: 0,
+        lives: 5,      // 全科大考多給 2 條命
+        timeLeft: 15,
+        combo: 0
+    };
+    gameOverlay.classList.remove('hidden');
+    resultBox.classList.add('hidden');
+    document.querySelector('.game-header').classList.remove('hidden');
+    document.getElementById('game-main').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    updateGameUI();
+    loadGameQuestion(0);
+    showToast(`📚 全科大考開始！共 ${mixed.length} 題，5 條命，加油！`, 'info');
+}
 
 // ==========================================
 // Presentation Mode Logic
@@ -1917,17 +2116,28 @@ function updateGameUI() {
 }
 
 function loadGameQuestion(idx) {
-    const qData = currentGameState.questions[idx];
+    const rawQ = currentGameState.questions[idx];
     document.getElementById('game-explanation').classList.add('hidden');
-    
-    let optionsHTML = qData.o.map((opt, i) => {
+
+    // 洗牌選項（重新對應正確索引）
+    const shuffled = rawQ.o.map((txt, i) => ({ txt, isCorrect: i === rawQ.a }));
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    // 將洗牌結果嵌入 currentGameState，供 submitAnswer 查詢
+    currentGameState.questions[idx]._shuffledOptions = shuffled;
+    const newCorrectIdx = shuffled.findIndex(o => o.isCorrect);
+    currentGameState.questions[idx]._shuffledCorrectIdx = newCorrectIdx;
+
+    let optionsHTML = shuffled.map((opt, i) => {
         return '<button class="game-opt-btn" onclick="submitAnswer(' + i + ')">' +
-               '<span style="opacity: 0.5; font-size: 0.9rem;">' + String.fromCharCode(65+i) + '</span> ' + opt +
+               '<span style="opacity: 0.5; font-size: 0.9rem;">' + String.fromCharCode(65+i) + '</span> ' + opt.txt +
                '</button>';
     }).join('');
     
     document.getElementById('game-question-box').innerHTML = 
-        '<div class="game-q-text">' + qData.q + '</div>' +
+        '<div class="game-q-text">' + rawQ.q + '</div>' +
         '<div class="game-options-grid">' + optionsHTML + '</div>';
     
     currentGameState.timeLeft = 15;
@@ -1962,32 +2172,33 @@ window.submitAnswer = function(optIdx) {
     const qData = currentGameState.questions[currentGameState.currentIndex];
     const btns = document.querySelectorAll('.game-opt-btn');
     const gameMain = document.getElementById('game-main');
+    // 使用洗牌後的正確索引
+    const correctIdx = qData._shuffledCorrectIdx !== undefined ? qData._shuffledCorrectIdx : qData.a;
     
-    if (optIdx === qData.a) {
+    if (optIdx === correctIdx) {
         btns[optIdx].classList.add('correct');
         currentGameState.combo++;
         const points = Math.floor(currentGameState.timeLeft * 10) + (currentGameState.combo * 50);
         currentGameState.score += points;
-        // 明顯的正確回饋
         gameMain.classList.add('feedback-correct');
         setTimeout(() => gameMain.classList.remove('feedback-correct'), 700);
+        showExplanationWithReview(qData.exp, qData, false);
     } else {
         btns[optIdx].classList.add('wrong');
-        btns[qData.a].classList.add('correct');
+        if (btns[correctIdx]) btns[correctIdx].classList.add('correct');
         currentGameState.lives--;
         currentGameState.combo = 0;
-        // 明顯的错誤回饋
         gameMain.classList.add('feedback-wrong');
         setTimeout(() => gameMain.classList.remove('feedback-wrong'), 700);
+        showExplanationWithReview(qData.exp, qData, true);
     }
     
     updateGameUI();
-    showExplanation(qData.exp);
     
     if (currentGameState.lives <= 0) {
         document.getElementById('nextGameSlideBtn').innerText = '查看最終成績';
     } else {
-         document.getElementById('nextGameSlideBtn').innerText = '進入下一題';
+        document.getElementById('nextGameSlideBtn').innerText = '進入下一題';
     }
 };
 
@@ -1995,18 +2206,37 @@ function handleTimeout() {
     const qData = currentGameState.questions[currentGameState.currentIndex];
     const btns = document.querySelectorAll('.game-opt-btn');
     const gameMain = document.getElementById('game-main');
-    if(btns[qData.a]) btns[qData.a].classList.add('correct');
+    const correctIdx = qData._shuffledCorrectIdx !== undefined ? qData._shuffledCorrectIdx : qData.a;
+    if(btns[correctIdx]) btns[correctIdx].classList.add('correct');
     currentGameState.lives--;
     currentGameState.combo = 0;
-    // 明顯的超時错誤回饋
     gameMain.classList.add('feedback-wrong');
     setTimeout(() => gameMain.classList.remove('feedback-wrong'), 700);
     updateGameUI();
-    showExplanation("時間到！很可惜，一定要在時間內做出決定喔。" + qData.exp);
+    showExplanationWithReview('時間到！很可惜，一定要在時間內做出決定喜。' + qData.exp, qData, true);
 }
 
 function showExplanation(text) {
     document.getElementById('exp-content').innerText = text;
+    document.getElementById('game-explanation').classList.remove('hidden');
+}
+
+function showExplanationWithReview(text, qData, showReview) {
+    const expContent = document.getElementById('exp-content');
+    expContent.textContent = text;
+    // 願示「立刻複習」連結（就算是正確也可檢視）
+    const modId = qData._moduleId || currentGameState.moduleId;
+    const modName = qData._moduleName || (() => { const m = modulesData.find(x => x.id === modId); return m ? m.title : ''; })();
+    if (showReview && modId && modName) {
+        const btn = document.createElement('button');
+        btn.className = 'review-module-btn';
+        btn.innerHTML = `<i class="fa-solid fa-book-open"></i> 立刻複習：${modName}`;
+        btn.onclick = () => {
+            exitGame();
+            window._openModuleById(modId);
+        };
+        expContent.parentElement.appendChild(btn);
+    }
     document.getElementById('game-explanation').classList.remove('hidden');
 }
 
@@ -2022,7 +2252,7 @@ document.getElementById('nextGameSlideBtn').onclick = () => {
 
 function showFinalResult() {
     document.getElementById('game-main').classList.add('hidden');
-    document.querySelector('.game-header').classList.add('hidden'); // Hide stats header
+    document.querySelector('.game-header').classList.add('hidden');
     document.getElementById('game-result').classList.remove('hidden');
     document.getElementById('total-score').innerText = currentGameState.score;
     
@@ -2042,13 +2272,38 @@ function showFinalResult() {
     
     document.getElementById('result-mascot').innerHTML = '';
     const rankEl = document.getElementById('result-rank');
-    rankEl.innerHTML = rank; // Changed from innerText to innerHTML
+    rankEl.innerHTML = rank;
     rankEl.style.color = color;
+
+    // 個人最高分 localStorage
+    const bestKey = 'gameBest_' + (currentGameState.moduleId || 'mixed');
+    const bestScore = parseInt(localStorage.getItem(bestKey) || '0', 10);
+    const isNewRecord = currentGameState.score > bestScore;
+    if (isNewRecord) localStorage.setItem(bestKey, currentGameState.score);
+    const displayBest = Math.max(bestScore, currentGameState.score);
+
+    // 在結算畫面顯示个人最高分
+    let personalBestEl = document.getElementById('result-personal-best');
+    if (!personalBestEl) {
+        personalBestEl = document.createElement('div');
+        personalBestEl.id = 'result-personal-best';
+        document.getElementById('total-score').parentElement.appendChild(personalBestEl);
+    }
+    personalBestEl.className = 'result-personal-best' + (isNewRecord ? ' new-record' : '');
+    personalBestEl.innerHTML = isNewRecord 
+        ? '🏆 新紀錄！恭喜你破紀錄！'
+        : `個人最佳：${displayBest} 分`;
 }
 
 document.getElementById('closeGameBtn').onclick = exitGame;
 document.getElementById('exitGameBtn').onclick = exitGame;
-document.getElementById('retryGameBtn').onclick = () => startQuizGame(currentGameState.moduleId);
+document.getElementById('retryGameBtn').onclick = () => {
+    if (currentGameState.moduleId === 0) {
+        startMixedQuiz(); // 全科大考重試
+    } else {
+        startQuizGame(currentGameState.moduleId);
+    }
+};
 
 function exitGame() {
     clearInterval(gameTimer);
