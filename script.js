@@ -655,15 +655,20 @@ document.addEventListener('DOMContentLoaded', () => {
         renderTiles(filtered, query);
     }
 
+    // --- Toast Singleton ---
+    let toastInstance = null;
     window.showToast = (message) => {
-        const toast = document.createElement('div');
-        toast.className = 'toast';
-        toast.innerHTML = `<i class="fa-solid fa-check-circle"></i> ${message}`;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.classList.add('show'), 100);
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => toast.remove(), 500);
+        if (!toastInstance) {
+            toastInstance = document.createElement('div');
+            toastInstance.className = 'toast';
+            document.body.appendChild(toastInstance);
+        }
+        toastInstance.innerHTML = `<i class="fa-solid fa-check-circle"></i> ${message}`;
+        toastInstance.classList.add('show');
+        
+        clearTimeout(toastInstance.timer);
+        toastInstance.timer = setTimeout(() => {
+            toastInstance.classList.remove('show');
         }, 2000);
     };
 
@@ -672,7 +677,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!m) return;
         const quizText = (m.quizzes || []).map((q, i) => `檢核 Q${i+1}：${q.q}\n解答 A${i+1}：${q.a}`).join('\n');
         const text = `【${m.title}】\n目標：${m.goal}\n準備：${m.prep}\n流程：\n${m.steps.map(s => `- [${s.time}] ${s.content} (提問：${s.q})`).join('\n')}\n--- 核心觀念檢核 ---\n${quizText}\n--- 總結 ---\n${m.summary}`;
-        navigator.clipboard.writeText(text).then(() => showToast('專業教案大綱已複製，老師加油！'));
+        navigator.clipboard.writeText(text).then(() => showToast('已複製'));
     };
 
     // Mascot Drag Logic
@@ -698,16 +703,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const rect = msc.getBoundingClientRect();
         
-        // Clamp boundaries
+        // Boundaries based on initial fixed position (bottom: 30, left: 30)
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        
+        // Horizontal: Left is 30px from viewport edge
         const minX = -30;
-        const maxX = window.innerWidth - rect.width - 30;
-        const minY = -window.innerHeight + rect.height + 30;
+        const maxX = vw - rect.width - 30;
+        
+        // Vertical: Bottom is 30px from viewport edge
+        // Initial bottom is vh - 30 - rect.height from TOP
+        // But since it's bottom: 30, let's just use simple viewport bounds
+        const minY = -(vh - rect.height - 30);
         const maxY = 30;
 
         translateX = Math.max(minX, Math.min(newX, maxX));
         translateY = Math.max(minY, Math.min(newY, maxY));
         
-        msc.style.transform = `translate(${translateX}px, ${translateY}px)`;
+        msc.style.transform = `translate3d(${translateX}px, ${translateY}px, 0)`;
     });
 
     window.addEventListener('pointerup', () => {
@@ -1931,7 +1944,21 @@ function loadGameQuestion(idx) {
     const qData = currentGameState.questions[idx];
     document.getElementById('game-explanation').classList.add('hidden');
     
-    let optionsHTML = qData.o.map((opt, i) => {
+    // Shuffle Options and track Correct Answer
+    const originalOptions = [...qData.o];
+    const correctAnswerText = originalOptions[qData.a];
+    
+    // Fisher-Yates Shuffle
+    for (let i = originalOptions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [originalOptions[i], originalOptions[j]] = [originalOptions[j], originalOptions[i]];
+    }
+    
+    // Find new correct index
+    const newCorrectIdx = originalOptions.findIndex(opt => opt === correctAnswerText);
+    currentGameState.shuffledCorrectIdx = newCorrectIdx;
+    
+    let optionsHTML = originalOptions.map((opt, i) => {
         return '<button class="game-opt-btn" onclick="submitAnswer(' + i + ')">' +
                '<span style="opacity: 0.5; font-size: 0.9rem;">' + String.fromCharCode(65+i) + '</span> ' + opt +
                '</button>';
@@ -1973,40 +2000,61 @@ window.submitAnswer = function(optIdx) {
     const qData = currentGameState.questions[currentGameState.currentIndex];
     const btns = document.querySelectorAll('.game-opt-btn');
     const gameMain = document.getElementById('game-main');
+    const correctIdx = currentGameState.shuffledCorrectIdx;
     
-    if (optIdx === qData.a) {
+    // Check if correct
+    if (optIdx === correctIdx) {
+        btns.forEach(b => b.classList.add('disabled')); // Disable all buttons
         btns[optIdx].classList.add('correct');
         currentGameState.combo++;
         const points = Math.floor(currentGameState.timeLeft * 10) + (currentGameState.combo * 50);
         currentGameState.score += points;
+        
         // 明顯的正確回饋
         gameMain.classList.add('feedback-correct');
         setTimeout(() => gameMain.classList.remove('feedback-correct'), 700);
+        
+        // 答對才顯示解析與下一題按鈕
+        updateGameUI();
+        showExplanation(qData.exp);
+        
+        if (currentGameState.lives <= 0) {
+            document.getElementById('nextGameSlideBtn').innerText = '查看最終成績';
+        } else {
+             document.getElementById('nextGameSlideBtn').innerText = '進入下一題';
+        }
     } else {
+        // 答錯邏輯：變紅、晃動、扣命，但不顯示解析與正解
+        if (btns[optIdx].classList.contains('wrong')) return; // Already clicked
+        
         btns[optIdx].classList.add('wrong');
-        btns[qData.a].classList.add('correct');
+        btns[optIdx].style.pointerEvents = 'none'; // Disable this specific wrong button
+        btns[optIdx].style.opacity = '0.5';
+        
         currentGameState.lives--;
         currentGameState.combo = 0;
+        updateGameUI();
+        
         // 明顯的错誤回饋
         gameMain.classList.add('feedback-wrong');
         setTimeout(() => gameMain.classList.remove('feedback-wrong'), 700);
+        
+        // 若扣到沒命，雖然沒答對但也得結束
+        if (currentGameState.lives <= 0) {
+            btns.forEach(b => b.classList.add('disabled'));
+            btns[correctIdx].classList.add('correct');
+            showExplanation("生命值耗盡！很可惜沒能答對。" + qData.exp);
+            document.getElementById('nextGameSlideBtn').innerText = '查看最終成績';
+        }
     }
-    
-    updateGameUI();
-    showExplanation(qData.exp);
-    
-    if (currentGameState.lives <= 0) {
-        document.getElementById('nextGameSlideBtn').innerText = '查看最終成績';
-    } else {
-         document.getElementById('nextGameSlideBtn').innerText = '進入下一題';
-    }
-};
+}
 
 function handleTimeout() {
     const qData = currentGameState.questions[currentGameState.currentIndex];
     const btns = document.querySelectorAll('.game-opt-btn');
     const gameMain = document.getElementById('game-main');
-    if(btns[qData.a]) btns[qData.a].classList.add('correct');
+    const correctIdx = currentGameState.shuffledCorrectIdx;
+    if(btns[correctIdx]) btns[correctIdx].classList.add('correct');
     currentGameState.lives--;
     currentGameState.combo = 0;
     // 明顯的超時错誤回饋
