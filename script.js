@@ -461,6 +461,23 @@ const modulesData = [
         ],
         flex: '**實境連結：尋找身邊的勞工局與工會**。教師可拉出 Google Map，讓學生搜尋戶籍地的勞工局與在地總工會位置。讓學生具體感覺到這些保護他們的機構並非遙遠的法條，而是隨時可求助的真實後盾。',
         summary: '團結一致就是力量，權益保障一起來。'
+    },
+    {
+        id: 24, type: 'collective', icon: 'fa-graduation-cap', title: '我是有勞動素養的公民', subtitle: '勞動公民素養總整理',
+        prep: '學習護照或自我承諾卡。',
+        goal: '統整勞動素養的三個面向：知識、態度、行動。',
+        steps: [
+            { time: '3m', icon: 'fa-brain', type: '三面向引入', content: '知道（知識）→ 相信（態度）→ 做到（行動）：說說你在這堂課「學到、感動、想做」各一件事。', q: '光是「知道」就夠了嗎？', a: '不夠。知識只是基礎，唯有將知識內化為「我有尊嚴、我尊重他人」的態度，並真實採取行動，才是真正的勞動素養。' },
+            { time: '8m', icon: 'fa-hand-heart', type: '同理心擴展', content: '你的物品來自誰的勞動？手機、衣服、早餐背後的辛勞。', q: '作為消費者，我可以如何尊重勞工？', a: '理性看待合理的商品售價（背後是合理薪資成本），避免購買剝削勞工的品牌，並在力所能及時支持友善勞工的企業文化。' },
+            { time: '4m', icon: 'fa-scroll', type: '承諾行動', content: '寫下「我的勞動公民宣言」：我承諾在職場中...。', q: '15分鐘讓你帶走什麼？', a: '（鼓勵真實分享）知識是武裝，尊嚴是目標，團結是力量——這堂 15 分鐘課程，是你未來職涯的第一塊磚。' }
+        ],
+        quizzes: [
+            { q: '學習勞動素養最重要的目的是？', a: '保護自己的尊嚴，同時尊重每一位勞工的辛勞。' },
+            { q: '消費者可以如何支持友善勞工的環境？', a: '理性看待合理售價，支持重視勞工權益的品牌。' },
+            { q: '勞動法是「死板的法條」還是「生活的安全網」？', a: '是保障工作尊嚴的生活安全網。' }
+        ],
+        flex: '**結語活動：傳遞名片**。製作一張本課程的「勞動素養名片」，上面寫下自己最想提醒未來雇主的一句話，以及自己作為勞工最重視的一項權益。可留存作為學習反思的見證。',
+        summary: '知識在腦、尊嚴在心、行動在手——你就是有勞動素養的公民。'
     }
 ];
 
@@ -572,7 +589,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
 
             <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px;">
-                <button class="btn-copy" onclick="copyPlanSnippet('${m.title}')"><i class="fa-regular fa-copy"></i> 複製教案大綱</button>
+                <button class="btn-copy" onclick="copyPlanSnippet(${m.id})"><i class="fa-regular fa-copy"></i> 複製教案大綱</button>
                 <button class="btn-copy" style="background: #3742fa; color: white; border-color: #3742fa;" onclick="startPresentation(${m.id})"><i class="fa-solid fa-desktop"></i> 開啟大螢幕簡報</button>
                 <button class="btn-copy" style="background: #ff4757; color: white; border-color: #ff4757;" onclick="startQuizGame(${m.id})"><i class="fa-solid fa-gamepad"></i> 進入益智挑戰賽</button>
             </div>
@@ -639,8 +656,9 @@ document.addEventListener('DOMContentLoaded', () => {
         renderTiles(filtered, query);
     }
 
-    window.copyPlanSnippet = (title) => {
-        const m = modulesData.find(x => x.title === title);
+    window.copyPlanSnippet = (moduleId) => {
+        const m = modulesData.find(x => x.id === moduleId);
+        if (!m) return;
         const quizText = (m.quizzes || []).map((q, i) => `檢核 Q${i+1}：${q.q}\n解答 A${i+1}：${q.a}`).join('\n');
         const text = `【${m.title}】\n目標：${m.goal}\n準備：${m.prep}\n流程：\n${m.steps.map(s => `- [${s.time}] ${s.content} (提問：${s.q})`).join('\n')}\n--- 核心觀念檢核 ---\n${quizText}\n--- 總結 ---\n${m.summary}`;
         navigator.clipboard.writeText(text).then(() => alert('專業教案大綱已複製，包含 3 組互動問答，老師加油！'));
